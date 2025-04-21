@@ -1,0 +1,60 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - grafanaUrl
+      - grafanaApiKey
+    properties:
+      grafanaUrl:
+        type: string
+        description: URL of the Grafana instance
+      grafanaApiKey:
+        type: string
+        description: API token
+      debug:
+        type: boolean
+        default: false
+      disableSearch:
+        type: boolean
+        default: false
+      disableDashboard:
+        type: boolean
+        default: false
+      disableDatasources:
+        type: boolean
+        default: false
+      disablePrometheus:
+        type: boolean
+        default: false
+      disableIncident:
+        type: boolean
+        default: false
+      disableLoki:
+        type: boolean
+        default: false
+      disableAlerting:
+        type: boolean
+        default: false
+      disableOncall:
+        type: boolean
+        default: false
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => { const args = []; if (config.debug) args.push("-debug"); Object.entries(config).forEach(([key, value]) => { if (key.startsWith('disable') && value === true) { const category = key.slice('disable'.length).toLowerCase(); args.push(`--disable-${category}`); }}); return { command: '/app/mcp-grafana', args, env: { GRAFANA_URL: config.grafanaUrl, GRAFANA_API_KEY: config.grafanaApiKey } }; }
+  exampleConfig:
+    grafanaUrl: http://localhost:3000
+    grafanaApiKey: token123
+    debug: false
+    disableSearch: false
+    disableDashboard: false
+    disableDatasources: false
+    disablePrometheus: false
+    disableIncident: false
+    disableLoki: false
+    disableAlerting: false
+    disableOncall: false
